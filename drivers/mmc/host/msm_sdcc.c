@@ -270,6 +270,7 @@ int is_wimax_platform(struct mmc_platform_data *plat)
 EXPORT_SYMBOL(is_wimax_platform);
 
 #ifdef CONFIG_WIMAX
+#if 0
 static int wimax_enable_irq(struct mmc_host *mmc)
 {
 	struct msmsdcc_host *host = mmc_priv(mmc);
@@ -300,6 +301,7 @@ static int wimax_disable_irq(struct mmc_host *mmc)
 	}
 	return 0;
 }
+#endif
 #endif
 
 static void
@@ -597,8 +599,10 @@ void msmsdcc_switch_clock(struct mmc_host *mmc, int on)
 #ifdef CONFIG_WIMAX
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 			mmc_wimax_enable_host_wakeup(0);
+#if 0
 			if (mmc_wimax_get_disable_irq_config() == 2)
 		        wimax_enable_irq(host->mmc);
+#endif
 		}
 #endif
 		if (!IS_ERR_OR_NULL(host->dfab_pclk))
@@ -648,8 +652,10 @@ void msmsdcc_switch_clock(struct mmc_host *mmc, int on)
 #ifdef CONFIG_WIMAX
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 			mmc_wimax_enable_host_wakeup(1);
+#if 0
 			if (mmc_wimax_get_disable_irq_config() == 2)
 				wimax_disable_irq(host->mmc);
+#endif
 		}
 #endif
 		WARN_ON(host->curr.mrq != NULL);
@@ -1920,8 +1926,10 @@ msmsdcc_irq(int irq, void *dev_id)
 				msmsdcc_delay(host);
 
 #ifdef CONFIG_WIMAX
+#if 0
     		if (is_wimax_platform(host->plat) && mmc_wimax_get_status())
     			mmc_wimax_set_FWWakeupHostEvent(1);
+#endif
 #endif
 		}
 
@@ -2487,6 +2495,26 @@ static inline int msmsdcc_is_pwrsave(struct msmsdcc_host *host)
 	return 0;
 }
 
+static inline void msmsdcc_disable_clocks(struct msmsdcc_host *host, int deferr)
+{
+	return;
+}
+EXPORT_SYMBOL(msmsdcc_disable_clocks);
+
+static inline int msmsdcc_enable_clocks(struct msmsdcc_host *host)
+{
+	/*runtime resume would enable the CLK,
+	so we dont need this part to en-clk again*/
+	return 0;
+}
+EXPORT_SYMBOL(msmsdcc_enable_clocks);
+
+int msmsdcc_get_sdc_clocks(struct msmsdcc_host *host)
+{
+	return host->clks_on;
+}
+EXPORT_SYMBOL(msmsdcc_get_sdc_clocks);
+
 static inline void msmsdcc_setup_clocks(struct msmsdcc_host *host, bool enable)
 {
 	if (enable) {
@@ -2681,8 +2709,10 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 #ifdef CONFIG_WIMAX
 			if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 				mmc_wimax_enable_host_wakeup(0);
+#if 0
 				if (mmc_wimax_get_disable_irq_config() == 2)
 		            wimax_enable_irq(host->mmc);
+#endif
 			}
 #endif
 			msmsdcc_setup_clocks(host, true);
@@ -2896,8 +2926,10 @@ msmsdcc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 #ifdef CONFIG_WIMAX
 		if (is_wimax_platform(host->plat) && mmc_wimax_get_status()) {
 			mmc_wimax_enable_host_wakeup(1);
+#if 0
 			if (mmc_wimax_get_disable_irq_config() == 2)
 				wimax_disable_irq(host->mmc);
+#endif
 		}
 #endif
 		msmsdcc_setup_clocks(host, false);
@@ -5080,8 +5112,10 @@ static int msmsdcc_suspend(struct device *dev)
 #endif
 
 #ifdef CONFIG_WIMAX
+#if 0
 		if (mmc_wimax_get_disable_irq_config() == 1)
 			wimax_disable_irq(host->mmc);
+#endif
 #endif
 
 		/*
@@ -5222,8 +5256,10 @@ static int msmsdcc_resume(struct device *dev)
 
 #ifdef CONFIG_WIMAX
         /* Need to turn on CLK before enable_irq */
+#if 0
 		if (mmc_wimax_get_disable_irq_config() == 1)
 			wimax_enable_irq(host->mmc);
+#endif
 #endif
 
 		spin_unlock_irqrestore(&host->lock, flags);

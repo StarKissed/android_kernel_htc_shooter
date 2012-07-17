@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-shooter_u-wifi.c
+/* linux/arch/arm/mach-msm/board-shooter-wifi.c
 */
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -11,8 +11,8 @@
 #include <linux/skbuff.h>
 #include <linux/wifi_tiwlan.h>
 
-#include "board-shooter_u.h"
-#include "board-shooter_u-wifi.h"
+#include "board-shooter.h"
+#include "board-shooter-wifi.h"
 
 int shooter_u_wifi_power(int on);
 int shooter_u_wifi_reset(int on);

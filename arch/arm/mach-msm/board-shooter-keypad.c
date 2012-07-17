@@ -1,4 +1,4 @@
-/* arch/arm/mach-msm/board-shooter_u-keypad.c
+/* arch/arm/mach-msm/board-shooter-keypad.c
  *
  * Copyright (C) 2008 Google, Inc.
  *
@@ -22,14 +22,14 @@
 #include <linux/gpio.h>
 #include <mach/gpio.h>
 
-#include "board-shooter_u.h"
+#include "board-shooter.h"
 
 #include <linux/mfd/pmic8058.h>
 #include <linux/input/pmic8058-keypad.h>
 
 static char *keycaps = "--qwerty";
 #undef MODULE_PARAM_PREFIX
-#define MODULE_PARAM_PREFIX "board_shooter_u."
+#define MODULE_PARAM_PREFIX "board_shooter."
 module_param_named(keycaps, keycaps, charp, 0);
 
 static void config_gpio_table(uint32_t *table, int len)
@@ -142,7 +142,11 @@ static struct gpio_event_info *shooter_u_keypad_info[] = {
 
 static struct gpio_event_platform_data shooter_u_keypad_data = {
 	.names = {
+#ifdef CONFIG_MACH_SHOOTER
 		"shooteru-keypad",
+#else
+        "shooter-keypad",
+#endif
 		NULL,
 	},
 	.info = shooter_u_keypad_info,

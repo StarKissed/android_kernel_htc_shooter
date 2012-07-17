@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-shooter_u-wifi.h
+/* linux/arch/arm/mach-msm/board-shooter-wifi.h
  *
  * Copyright (C) 2008 HTC Corporation.
  *

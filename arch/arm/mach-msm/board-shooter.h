@@ -17,7 +17,11 @@
 
 #include <mach/board.h>
 
+#ifdef CONFIG_MACH_SHOOTER
+#define SHOOTER_U_PROJECT_NAME	"shooter"
+#else
 #define SHOOTER_U_PROJECT_NAME	"shooter_u"
+#endif
 
 #define MSM_RAM_CONSOLE_BASE	MSM_HTC_RAM_CONSOLE_PHYS
 #define MSM_RAM_CONSOLE_SIZE	MSM_HTC_RAM_CONSOLE_SIZE
@@ -129,6 +133,24 @@
 /* Wifi */
 #define SHOOTER_U_GPIO_WIFI_IRQ              (46)
 #define SHOOTER_U_GPIO_WIFI_SHUTDOWN_N       (96)
+
+/* WiMax */
+#define SHOOTER_GPIO_WIMAX_UART_SIN        (41)
+#define SHOOTER_GPIO_WIMAX_UART_SOUT       (42)
+#define SHOOTER_GPIO_V_WIMAX_1V2_RF_EN     (43)
+#define SHOOTER_GPIO_WIMAX_EXT_RST         (49)
+#define SHOOTER_GPIO_V_WIMAX_DVDD_EN       (94)
+#define SHOOTER_GPIO_V_WIMAX_PVDD_EN       (105)
+#define SHOOTER_GPIO_WIMAX_SDIO_D0         (143)
+#define SHOOTER_GPIO_WIMAX_SDIO_D1         (144)
+#define SHOOTER_GPIO_WIMAX_SDIO_D2         (145)
+#define SHOOTER_GPIO_WIMAX_SDIO_D3         (146)
+#define SHOOTER_GPIO_WIMAX_SDIO_CMD        (151)
+#define SHOOTER_GPIO_WIMAX_SDIO_CLK_CPU    (152)
+#define SHOOTER_GPIO_CPU_WIMAX_SW          (156)
+#define SHOOTER_GPIO_CPU_WIMAX_UART_EN     (157)
+#define SHOOTER_GPIO_MHL_USB_EN            (139)
+
 /* Sensors */
 #define SHOOTER_U_SENSOR_I2C_SDA		(72)
 #define SHOOTER_U_SENSOR_I2C_SCL		(73)
@@ -192,10 +214,17 @@
 #define SHOOTER_U_LCM_3D_PDz		(135)
 
 /* CAMERA SPI */
-#define SHOOTER_U_SP3D_SPI_DO                 (41)
-#define SHOOTER_U_SP3D_SPI_DI                 (42)
-#define SHOOTER_U_SP3D_SPI_CS                 (43)
-#define SHOOTER_U_SP3D_SPI_CLK                (44)
+#ifdef CONFIG_MACH_SHOOTER
+#define SHOOTER_U_SP3D_SPI_DO             (37)
+#define SHOOTER_U_SP3D_SPI_DI             (38)
+#define SHOOTER_U_SP3D_SPI_CS             (39)
+#define SHOOTER_U_SP3D_SPI_CLK            (40)
+#else
+#define SHOOTER_U_SP3D_SPI_DO             (41)
+#define SHOOTER_U_SP3D_SPI_DI             (42)
+#define SHOOTER_U_SP3D_SPI_CS             (43)
+#define SHOOTER_U_SP3D_SPI_CLK            (44)
+#endif
 
 /* CAMERA GPIO */
 #define SHOOTER_U_CAM_I2C_SDA           (47)
@@ -220,7 +249,7 @@
 #define SHOOTER_U_VOL_UP             (104)
 #define SHOOTER_U_VOL_DN             (103)
 #define SHOOTER_U_AUD_HP_EN          PMGPIO(18)
-#define SHOOTER_U_AUD_SPK_ENO         PMGPIO(19)
+#define SHOOTER_U_AUD_SPK_ENO        PMGPIO(19)
 #define SHOOTER_U_3DLCM_PD           PMGPIO(20)
 #define SHOOTER_U_AUD_QTR_RESET      PMGPIO(21)
 #define SHOOTER_U_TP_RST             PMGPIO(23)
@@ -228,15 +257,26 @@
 #define SHOOTER_U_AMBER_LED          PMGPIO(25)
 #define SHOOTER_U_3DCLK              PMGPIO(26)
 #define SHOOTER_U_AUD_MIC_SEL        PMGPIO(14)
-#define SHOOTER_U_CHG_STAT	   PMGPIO(33)
+#define SHOOTER_U_CHG_STAT	         PMGPIO(33)
 #define SHOOTER_U_SDC3_DET           PMGPIO(34)
 /*#define SHOOTER_U_PLS_INT            PMGPIO(35)*/
 #define SHOOTER_U_AUD_REMO_PRES      PMGPIO(37)
 #define SHOOTER_U_WIFI_BT_SLEEP_CLK  PMGPIO(38)
 #define SHOOTER_U_PS_VOUT            PMGPIO(22)
+#ifdef CONFIG_MACH_SHOOTER
+#define SHOOTER_U_TORCH_SET1         PMGPIO(32)
+#else
 #define SHOOTER_U_TORCH_SET1         PMGPIO(40)
+#endif
 #define SHOOTER_U_TORCH_SET2         PMGPIO(31)
 #define SHOOTER_U_AUD_REMO_EN        PMGPIO(15)
+
+#define SHOOTER_WIMAX_HOST_WAKEUP    PMGPIO(17)
+#define SHOOTER_WIMAX_DEBUG12        PMGPIO(16)
+#define SHOOTER_WIMAX_DEBUG14_XA     PMGPIO(28)
+#define SHOOTER_WIMAX_DEBUG15_XA     PMGPIO(30)
+#define SHOOTER_WIMAX_DEBUG14        PMGPIO(35)
+#define SHOOTER_WIMAX_DEBUG15        PMGPIO(36)
 
 /* Macros assume PMIC GPIOs start at 0 */
 #define PM8058_GPIO_BASE			NR_MSM_GPIOS

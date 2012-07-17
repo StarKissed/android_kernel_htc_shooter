@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/display/shooter_u-panel.c
+/* linux/arch/arm/mach-msm/display/shooter-panel.c
  *
  * Copyright (c) 2011 HTC.
  *
@@ -34,7 +34,7 @@
 #include <mach/debug_display.h>
 
 #include "../devices.h"
-#include "../board-shooter_u.h"
+#include "../board-shooter.h"
 #include "../devices-msm8x60.h"
 #include "../../../../drivers/video/msm_8x60/mdp_hw.h"
 

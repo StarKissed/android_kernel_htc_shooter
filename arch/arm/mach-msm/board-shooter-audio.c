@@ -1,4 +1,4 @@
-/* linux/arch/arm/mach-msm/board-shooter_u-audio.c
+/* linux/arch/arm/mach-msm/board-shooter-audio.c
  *
  * Copyright (C) 2010-2011 HTC Corporation.
  *
@@ -27,8 +27,8 @@
 #include <mach/qdsp6v2_1x/snddev_ecodec.h>
 #include <mach/qdsp6v2_1x/snddev_hdmi.h>
 #include <mach/htc_acoustic_8x60.h>
-#include "board-shooter_u.h"
-#include "board-shooter_u-audio-data.h"
+#include "board-shooter.h"
+#include "board-shooter-audio-data.h"
 #include <mach/qdsp6v2_1x/audio_dev_ctl.h>
 
 static struct mutex bt_sco_lock;

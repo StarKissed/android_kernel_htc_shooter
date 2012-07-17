@@ -24,7 +24,7 @@
 #include <asm/mach-types.h>
 
 #include <linux/mfd/pmic8058.h>
-#include "board-shooter_u.h"
+#include "board-shooter.h"
 /*
 #include <mach/htc_sleep_clk.h>
 */

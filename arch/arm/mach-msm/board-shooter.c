@@ -109,7 +109,7 @@
 #include <mach/restart.h>
 #include <mach/cable_detect.h>
 
-#include "board-shooter_u.h"
+#include "board-shooter.h"
 #include "devices.h"
 #include "devices-msm8x60.h"
 #include "cpuidle.h"
@@ -1300,6 +1300,8 @@ static struct platform_device htc_battery_pdev = {
 };
 #endif
 
+#ifdef CONFIG_MSM_CAMERA
+
 #ifdef CONFIG_SP3D
 static uint32_t sp3d_spi_gpio[] = {
 	/* or this? the i/o direction and up/down are much more correct */
@@ -1382,7 +1384,11 @@ static uint32_t camera_on_gpio_table_liteon[] = {
 };
 #endif
 
+#ifdef CONFIG_MACH_SHOOTER
+static struct regulator *shooter_u_reg_8901_l3 = NULL;
+#else
 static struct regulator *shooter_u_reg_8901_l6 = NULL;
+#endif
 static struct regulator *shooter_u_reg_8058_l8 = NULL;
 static struct regulator *shooter_u_reg_8058_l9 = NULL;
 static struct regulator *shooter_u_reg_8058_l10 = NULL;
@@ -1631,17 +1637,25 @@ static int Shooter_U_s5k6aafx_vreg_on(void)
 	int rc = 0;
 	pr_info("[CAM] %s\n", __func__);
 	/* main / 2nd camera analog power */
+#ifdef CONFIG_MACH_SHOOTER
+	rc = camera_sensor_power_enable("8058_l3", 2850000, &shooter_u_reg_8901_l3);
+	pr_info("[CAM] sensor_power_enable(\"8058_l3\", 2850) == %d\n", rc);
+#else
 	rc = camera_sensor_power_enable("8901_l6", 2850000, &shooter_u_reg_8901_l6);
 	pr_info("[CAM]sensor_power_enable(\"8901_l6\", 2850) == %d\n", rc);
+#endif
 	mdelay(5);
 
+#if 0
 	if (system_rev == 0x80) {/*VERSION A*/
+#endif
 		rc = camera_sensor_power_enable_8901("8901_lvs2", &shooter_u_reg_8901_lvs2);
 		pr_info("[CAM] sensor_power_enable(\"8901_lvs2\", 1800) == %d\n", rc);
 		mdelay(10);
 
 		rc = camera_sensor_power_enable_8901("8901_lvs3", &shooter_u_reg_8901_lvs3);
 		pr_info("[CAM] sensor_power_enable(\"8901_lvs3\", 1800) == %d\n", rc);
+#if 0
 	} else {
 		/* main / 2nd camera digital power */
 		rc = camera_sensor_power_enable("8058_l8", 1800000, &shooter_u_reg_8058_l8);
@@ -1650,8 +1664,9 @@ static int Shooter_U_s5k6aafx_vreg_on(void)
 		/*IO*/
 		rc = camera_sensor_power_enable("8058_l9", 1800000, &shooter_u_reg_8058_l9);
 		pr_info("[CAM] sensor_power_enable(\"8058_l9\", 1800) == %d\n", rc);
-		mdelay(1);
 	}
+#endif
+    mdelay(1);
 	return rc;
 }
 
@@ -1660,7 +1675,9 @@ static int Shooter_U_s5k6aafx_vreg_off(void)
 	int rc = 0;
 	pr_info("[CAM] %s\n", __func__);
 
+#if 0
 	if (system_rev == 0x80) {/*VERSION A*/
+#endif
 		rc = camera_sensor_power_disable(shooter_u_reg_8901_lvs3);
 		pr_info("[CAM] sensor_power_disable(\"8901_lvs3\") == %d\n", rc);
 		/*This is swich power*/
@@ -1668,6 +1685,7 @@ static int Shooter_U_s5k6aafx_vreg_off(void)
 		rc = camera_sensor_power_disable(shooter_u_reg_8901_lvs2);
 		pr_info("[CAM] sensor_power_disable(\"8901_lvs2\") == %d\n", rc);
 		mdelay(1);
+#if 0
 	} else {
 		/* IO power off */
 		rc = camera_sensor_power_disable(shooter_u_reg_8058_l9);
@@ -1679,9 +1697,15 @@ static int Shooter_U_s5k6aafx_vreg_off(void)
 		pr_info("[CAM] sensor_power_disable(\"8058_l8\") == %d\n", rc);
 		mdelay(1);
 	}
+#endif
 	/* main / 2nd camera analog power */
+#ifdef CONFIG_MACH_SHOOTER
+    rc = camera_sensor_power_disable(shooter_u_reg_8901_l3);
+	pr_info("[CAM] sensor_power_disable(\"8058_l3\") == %d\n", rc);
+#else
 	rc = camera_sensor_power_disable(shooter_u_reg_8901_l6);
 	pr_info("[CAM] sensor_power_disable(\"8901_l6\") == %d\n", rc);
+#endif
 
 	return rc;
 }
@@ -1780,7 +1804,11 @@ static struct spi_board_info sp3d_spi_board_info[] __initdata = {
 	{
 		.modalias	= "sp3d_spi",
 		.mode		= SPI_MODE_3,
+#ifdef CONFIG_MACH_SHOOTER
+		.bus_num	= 1,
+#else
 		.bus_num	= 2,
+#endif
 		.chip_select	= 0,
 		.max_speed_hz	= 15060000,
 	}
@@ -1894,6 +1922,8 @@ static struct i2c_board_info msm_camera_boardinfo[] __initdata = {
 	},
 	#endif
 };
+
+#endif
 
 #ifdef CONFIG_MSM_GEMINI
 static struct resource msm_gemini_resources[] = {
@@ -2073,7 +2103,11 @@ static struct msm_spi_platform_data msm_gsbi1_qup_spi_pdata = {
 	.max_clock_speed = 10800000,
 };
 
+#ifdef CONFIG_MACH_SHOOTER
+static struct msm_spi_platform_data msm_gsbi2_qup_spi_pdata = {
+#else
 static struct msm_spi_platform_data msm_gsbi3_qup_spi_pdata = {
+#endif
 	.max_clock_speed = 15060000,
 };
 #endif
@@ -3610,6 +3644,7 @@ static struct platform_device *shooter_u_devices[] __initdata = {
 	&ram_console_device,
 	&msm_device_smd,
 	&msm_device_uart_dm12,
+
 #ifdef CONFIG_I2C_QUP
 	&msm_gsbi4_qup_i2c_device,
 	&msm_gsbi5_qup_i2c_device,
@@ -3618,6 +3653,9 @@ static struct platform_device *shooter_u_devices[] __initdata = {
 #endif
 #ifdef CONFIG_SERIAL_MSM_HS
 	&msm_device_uart_dm1,
+#endif
+#if defined(CONFIG_WIMAX)
+    &msm_device_uart_dm3,
 #endif
 #ifdef CONFIG_MSM_SSBI
 	&msm_device_ssbi_pmic1,
@@ -3655,13 +3693,16 @@ static struct platform_device *shooter_u_devices[] __initdata = {
 	&msm_kgsl_3d0,
 	&msm_kgsl_2d0,
 	&msm_kgsl_2d1,
+
 #ifdef CONFIG_SP3D
 	&msm_camera_sensor_sp3d,
 #endif
 #ifdef CONFIG_QS_S5K4E1
 	&msm_camera_sensor_qs_s5k4e1,
 #endif
+#ifdef CONFIG_MSM_CAMERA
 	&msm_camera_sensor_webcam,
+#endif
 #ifdef CONFIG_MSM_GEMINI
 	&msm_gemini_device,
 #endif
@@ -3882,9 +3923,14 @@ static int pm8058_gpios_init(void)
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_U_AUD_QTR_RESET),
 			{
 				.direction	= PM_GPIO_DIR_OUT,
-				.output_value	= 1,
 				.output_buffer	= PM_GPIO_OUT_BUF_CMOS,
+#ifdef CONFIG_MACH_SHOOTER
+				.output_value	= 0,
+				.pull		= PM_GPIO_PULL_NO,
+#else
+                .output_value	= 1,
 				.pull		= PM_GPIO_PULL_DN,
+#endif
 				.out_strength	= PM_GPIO_STRENGTH_HIGH,
 				.function	= PM_GPIO_FUNC_NORMAL,
 				.vin_sel	= 2,
@@ -3977,6 +4023,19 @@ static int pm8058_gpios_init(void)
                         }
                 },
 
+#ifdef CONFIG_MACH_SHOOTER
+		{ /* WIMAX HOST WAKEUP */
+			PM8058_GPIO_PM_TO_SYS(SHOOTER_WIMAX_HOST_WAKEUP),
+			{
+				.direction	= PM_GPIO_DIR_IN,
+				.output_value	= 0,
+				.pull		= PM_GPIO_PULL_DN,
+				.function	= PM_GPIO_FUNC_NORMAL,
+				.vin_sel	= PM8058_GPIO_VIN_S3,
+				.inv_int_pol	= 0,
+			}
+		},
+#endif
 		{ /* 3D CLK */
 			PM8058_GPIO_PM_TO_SYS(SHOOTER_U_3DCLK),
 			{
@@ -5179,7 +5238,11 @@ static void __init msm8x60_init_buses(void)
 #endif
 #if defined(CONFIG_SPI_QUP) || defined(CONFIG_SPI_QUP_MODULE)
 	msm_gsbi1_qup_spi_device.dev.platform_data = &msm_gsbi1_qup_spi_pdata;
-	msm_gsbi3_qup_spi_device.dev.platform_data = &msm_gsbi3_qup_spi_pdata;
+#ifdef CONFIG_MACH_SHOOTER
+    msm_gsbi2_qup_spi_device.dev.platform_data = &msm_gsbi2_qup_spi_pdata;
+#else
+    msm_gsbi3_qup_spi_device.dev.platform_data = &msm_gsbi3_qup_spi_pdata;
+#endif
 #endif
 #ifdef CONFIG_I2C_SSBI
 	msm_device_ssbi2.dev.platform_data = &msm_ssbi2_pdata;
@@ -6440,13 +6503,14 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 	 * Initialize RPM first as other drivers and devices may need
 	 * it for their initialization.
 	 */
+
 #ifdef CONFIG_MSM_RPM
 	BUG_ON(msm_rpm_init(&msm_rpm_data));
 #endif
 	BUG_ON(msm_rpmrs_levels_init(msm_rpmrs_levels,
 				ARRAY_SIZE(msm_rpmrs_levels)));
 
-	/*
+    /*
 	* Set low power mode of rpm resources:
 	*    PXO        = OFF
 	*    L2_cache   = OFF
@@ -6496,8 +6560,10 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 
 	msm_clock_init(&msm8x60_clock_init_data);
 
+#ifdef CONFIG_MSM_CAMERA
 	spi_register_board_info(sp3d_spi_board_info,
 			ARRAY_SIZE(sp3d_spi_board_info));
+#endif
 
 	/* Buses need to be initialized before early-device registration
 	 * to get the platform data for fabrics.
@@ -6519,7 +6585,9 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 	msm8x60_init_gpiomux(board_data->gpiomux_cfgs);
 	msm8x60_init_uart12dm();
 	msm8x60_init_mmc();
+#ifdef CONFIG_MSM_CAMERA
 	msm8x60_init_camera();
+#endif
 
 #if defined(CONFIG_PMIC8058_OTHC) || defined(CONFIG_PMIC8058_OTHC_MODULE)
 	msm8x60_init_pm8058_othc();
@@ -6539,12 +6607,14 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 
 	msm8x60_cfg_smsc911x();
 	if (SOCINFO_VERSION_MAJOR(socinfo_get_version()) != 1)
+    {
 		platform_add_devices(msm_footswitch_devices,
-				     msm_num_footswitch_devices);
+                     msm_num_footswitch_devices);
+    }
 	platform_add_devices(shooter_u_devices,
 			     ARRAY_SIZE(shooter_u_devices));
 
-	/* usb driver won't be loaded in MFG 58 station */
+    /* usb driver won't be loaded in MFG 58 station */
 	if (board_mfg_mode() != 6)
 		shooter_u_add_usb_devices();
 
@@ -6564,7 +6634,11 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 
 #if defined(CONFIG_SPI_QUP) || defined(CONFIG_SPI_QUP_MODULE)
 	platform_device_register(&msm_gsbi1_qup_spi_device);
-	platform_device_register(&msm_gsbi3_qup_spi_device);
+#ifdef CONFIG_MACH_SHOOTER
+	platform_device_register(&msm_gsbi2_qup_spi_device);
+#else
+    platform_device_register(&msm_gsbi3_qup_spi_device);
+#endif
 #endif
 
 	shooter_u_init_panel(msm_fb_resources, ARRAY_SIZE(msm_fb_resources));
@@ -6652,7 +6726,17 @@ static void __init shooter_u_fixup(struct machine_desc *desc, struct tag *tags,
 		mi->bank[0].size += 0x10000000;
 }
 
-MACHINE_START(SHOOTER_U, "shooter_u")
+MACHINE_START(SHOOTER, "HTC Evo 3D CDMA")
+	.fixup = shooter_u_fixup,
+	.map_io = shooter_u_map_io,
+	.reserve = shooter_u_reserve,
+	.init_irq = msm8x60_init_irq,
+	.init_machine = shooter_u_init,
+	.timer = &msm_timer,
+	.init_early = shooter_u_charm_init_early,
+MACHINE_END
+
+MACHINE_START(SHOOTER_U, "HTC Evo 3D GSM")
 	.fixup = shooter_u_fixup,
 	.map_io = shooter_u_map_io,
 	.reserve = shooter_u_reserve,
