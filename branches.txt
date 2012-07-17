@@ -1,0 +1,10 @@
+master - Top branch, only used for official releases
+  \
+ stable - Finished and tested code, preparing for integration to master
+    \
+  nightly - Unstable branch, used for bug-fixing
+      \
+       |- htc - Code directly from HTC without modifications
+       |- [feature] - Feature branches contain code specific to a particular feature
+
+The htc branch is never modified for building, it is integrated into a feature branch like any other feature
