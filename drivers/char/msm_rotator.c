@@ -29,10 +29,6 @@
 #include <linux/major.h>
 #include <linux/regulator/consumer.h>
 #include <linux/ion.h>
-#ifdef CONFIG_MSM_BUS_SCALING
-#include <mach/msm_bus.h>
-#include <mach/msm_bus_board.h>
-#endif
 
 #define DRIVER_NAME "msm_rotator"
 
@@ -150,9 +146,6 @@ struct msm_rotator_dev {
 	int imem_owner;
 	wait_queue_head_t wq;
 	struct ion_client *client;
-	#ifdef CONFIG_MSM_BUS_SCALING
-	uint32_t bus_client_handle;
-	#endif
 };
 
 #define COMPONENT_5BITS 1
@@ -1142,12 +1135,6 @@ static void msm_rotator_set_perf_level(u32 wh, u32 is_rgb)
 		perf_level = 3;
 	else
 		perf_level = 4;
-
-#ifdef CONFIG_MSM_BUS_SCALING
-	msm_bus_scale_client_update_request(msm_rotator_dev->bus_client_handle,
-		perf_level);
-#endif
-
 }
 
 static int msm_rotator_start(unsigned long arg,
@@ -1302,10 +1289,6 @@ static int msm_rotator_finish(unsigned long arg)
 
 	if (s == MAX_SESSIONS)
 		rc = -EINVAL;
-#ifdef CONFIG_MSM_BUS_SCALING
-	msm_bus_scale_client_update_request(msm_rotator_dev->bus_client_handle,
-		0);
-#endif
 	mutex_unlock(&msm_rotator_dev->rotator_lock);
 	return rc;
 }
@@ -1455,19 +1438,6 @@ static int __devinit msm_rotator_probe(struct platform_device *pdev)
 
 	msm_rotator_dev->core_clk = NULL;
 	msm_rotator_dev->pclk = NULL;
-
-#ifdef CONFIG_MSM_BUS_SCALING
-	if (!msm_rotator_dev->bus_client_handle && pdata &&
-		pdata->bus_scale_table) {
-		msm_rotator_dev->bus_client_handle =
-			msm_bus_scale_register_client(
-				pdata->bus_scale_table);
-		if (!msm_rotator_dev->bus_client_handle) {
-			pr_err("%s not able to get bus scale handle\n",
-				__func__);
-		}
-	}
-#endif
 
 	for (i = 0; i < number_of_clks; i++) {
 		if (pdata->rotator_clks[i].clk_type == ROTATOR_IMEM_CLK) {
@@ -1650,9 +1620,6 @@ static int __devexit msm_rotator_remove(struct platform_device *plat_dev)
 {
 	int i;
 
-#ifdef CONFIG_MSM_BUS_SCALING
-	msm_bus_scale_unregister_client(msm_rotator_dev->bus_client_handle);
-#endif
 	free_irq(msm_rotator_dev->irq, NULL);
 	mutex_destroy(&msm_rotator_dev->rotator_lock);
 	cdev_del(&msm_rotator_dev->cdev);

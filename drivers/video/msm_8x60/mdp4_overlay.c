@@ -1143,6 +1143,33 @@ int mdp4_overlay_pipe_staged(int mixer)
 		return p1;
 }
 
+int mdp4_mixer_info(int mixer_num, struct mdp_mixer_info *info)
+{
+
+	int ndx, cnt;
+	struct mdp4_overlay_pipe *pipe;
+
+	if (mixer_num > MDP4_MIXER_MAX)
+		return -ENODEV;
+
+	cnt = 0;
+	ndx = 1; /* ndx 0 if not used */
+
+	for ( ; ndx < MDP4_MAX_STAGE; ndx++) {
+		pipe = ctrl->stage[mixer_num][ndx];
+		if (pipe == NULL)
+			continue;
+		info->z_order = pipe->mixer_stage - MDP4_MIXER_STAGE0;
+		info->ptype = pipe->pipe_type;
+		info->pnum = pipe->pipe_num;
+		info->pndx = pipe->pipe_ndx;
+		info->mixer_num = pipe->mixer_num;
+		info++;
+		cnt++;
+	}
+	return cnt;
+}
+
 void mdp4_mixer_stage_up(struct mdp4_overlay_pipe *pipe)
 {
 	uint32 data, mask, snum, stage, mixer, pnum;

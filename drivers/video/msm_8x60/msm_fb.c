@@ -3126,6 +3126,27 @@ static int msmfb_overlay_3d(struct fb_info *info, unsigned long *argp)
 	return ret;
 }
 
+static int msmfb_mixer_info(struct fb_info *info, unsigned long *argp)
+{
+	int     ret, cnt;
+	struct msmfb_mixer_info_req req;
+
+	ret = copy_from_user(&req, argp, sizeof(req));
+	if (ret) {
+		pr_err("%s: failed\n", __func__);
+		return ret;
+	}
+
+	cnt = mdp4_mixer_info(req.mixer_num, req.info);
+	req.cnt = cnt;
+	ret = copy_to_user(argp, &req, sizeof(req));
+	if (ret)
+		pr_err("%s:msmfb_overlay_blt_off ioctl failed\n",
+		__func__);
+
+	return cnt;
+}
+
 #endif
 
 DEFINE_SEMAPHORE(msm_fb_ioctl_ppp_sem);
@@ -3262,6 +3283,11 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = msmfb_overlay_3d(info, argp);
 		up(&msm_fb_ioctl_ppp_sem);
 		break;
+    case MSMFB_MIXER_INFO:
+        down(&msm_fb_ioctl_ppp_sem);
+        ret = msmfb_mixer_info(info, argp);
+        up(&msm_fb_ioctl_ppp_sem);
+        break;
 #endif
 	case MSMFB_BLIT:
 		down(&msm_fb_ioctl_ppp_sem);
