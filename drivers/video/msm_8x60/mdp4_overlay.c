@@ -652,6 +652,7 @@ int mdp4_overlay_format2type(uint32 format)
 
 int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 {
+    printk("Overlay: %s  pipe->src_format=%d\n", __func__, pipe->src_format);
 	switch (pipe->src_format) {
 	case MDP_RGB_565:
 		pipe->frame_format = MDP4_FRAME_FORMAT_LINEAR;
@@ -829,12 +830,16 @@ int mdp4_overlay_format2pipe(struct mdp4_overlay_pipe *pipe)
 			pipe->element0 = C2_R_Cr;	/* R */
 			pipe->chroma_sample = MDP4_CHROMA_H2V1;
 		} else if (pipe->src_format == MDP_Y_CRCB_H2V2) {
-			pipe->element1 = C2_R_Cr;	/* R */
-			pipe->element0 = C1_B_Cb;	/* B */
+            // This swap really concerns me. This came over from the msm8660 tree, which worked correctly.
+            // But it still reads backwards to me, compared to the elements above. Although I'm also thinking
+            // that all the CRCB and CBCR formats are backwards, due to the RGB ordering... More research is
+            // needed.
+            pipe->element1 = C1_B_Cb;	/* B */
+            pipe->element0 = C2_R_Cr;	/* R */
 			pipe->chroma_sample = MDP4_CHROMA_420;
 		} else if (pipe->src_format == MDP_Y_CBCR_H2V2) {
-			pipe->element1 = C1_B_Cb;	/* B */
-			pipe->element0 = C2_R_Cr;	/* R */
+            pipe->element1 = C2_R_Cr;	/* R */
+            pipe->element0 = C1_B_Cb;	/* B */
 			pipe->chroma_sample = MDP4_CHROMA_420;
 		}
 		pipe->bpp = 2;	/* 2 bpp */
